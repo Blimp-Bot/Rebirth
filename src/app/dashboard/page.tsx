@@ -33,7 +33,7 @@ export default function DashboardPage() {
             onClick={() =>
               toast({
                 title: "Heres why",
-                icon: "success",
+                icon: "info",
                 description:
                   'We require that you have the "Manage Guild" permission to access your server. Please double check your permissions and then refresh this page.',
               })

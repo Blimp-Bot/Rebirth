@@ -4,8 +4,8 @@ import { FaDiscord } from "react-icons/fa";
 import { Button } from "../ui/button";
 import { useEffect, useState } from "react";
 import { authClient } from "@/lib/auth/client";
-import { toast } from "sonner";
 import { redirect } from "next/navigation";
+import { toast } from "@/components/Toast";
 import ProdAvatarTransparent from "@/assets/AVATAR_PROD-TRANSPARENT.png";
 import { env } from "@/env";
 import Loader from "../loader";
@@ -52,16 +52,26 @@ export default function LoginComponent() {
               },
               {
                 onRequest: () => {
-                  toast.info("Signing in.");
+                  toast({
+                    icon: "info",
+                    description: "Redirecting you to discord.",
+                  });
                 },
                 onSuccess: () => {
-                  toast.success("Signed in, redirecting soon.");
+                  toast({
+                    icon: "success",
+                    title: "Successfully logged in",
+                    description: " You should be redirected soon.",
+                  });
                 },
                 //@ts-ignore
                 onError: (ctx) => {
-                  toast.error(
-                    "Failed to sign you in. If you're a nerd, the logs are in the console."
-                  );
+                  toast({
+                    icon: "error",
+                    title: "Failed to sign you in.",
+                    description:
+                      "Please try again. If it continues then please report this error in my discord server.",
+                  });
                   console.log(ctx);
                 },
               }

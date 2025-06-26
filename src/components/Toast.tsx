@@ -1,6 +1,6 @@
 "use client";
 
-import { Check } from "lucide-react";
+import { Check, Cross, MessageCircleQuestion } from "lucide-react";
 // https://sonner.emilkowal.ski/styling
 
 import React from "react";
@@ -9,13 +9,18 @@ import { toast as sonnerToast } from "sonner";
 interface ToastProps {
   id: string | number;
   icon?: keyof typeof ToastIconStyles;
-  title: React.ReactElement | React.ReactNode | string;
+  title?: React.ReactElement | React.ReactNode | string;
   description: React.ReactElement | React.ReactNode | string;
 }
 
 export function toast(toast: Omit<ToastProps, "id">) {
   return sonnerToast.custom((id) => (
-    <Toast icon={toast.icon} id={id} title={toast.title} description={toast.description} />
+    <Toast
+      icon={toast.icon}
+      id={id}
+      title={toast.title}
+      description={toast.description}
+    />
   ));
 }
 
@@ -29,10 +34,20 @@ export const ToastIconStyles = {
       <Check className="w-[20px]" />
     </div>
   ),
+  info: (
+    <div className="bg-blue-500 bg-opacity-10 rounded-md px-[2px]">
+      <MessageCircleQuestion className="w-[20px]" />
+    </div>
+  ),
+  error: (
+    <div className="bg-red-500 bg-opacity-10 rounded-md px-[2px]">
+      <Cross className="w-[20px]" />
+    </div>
+  ),
 };
 
 export function ToastIcon(props: ToastIconProps) {
-    return <>{ToastIconStyles[props.style]}</>
+  return <>{ToastIconStyles[props.style]}</>;
 }
 
 function Toast(props: ToastProps) {
@@ -42,11 +57,13 @@ function Toast(props: ToastProps) {
     <div className="flex rounded-lg border  border-blimp-border bg-dark-foreground shadow-lg ring-1 ring-black/5 w-full md:max-w-[364px] items-center p-4">
       <div className="flex flex-1 items-center">
         <div className="w-full">
-          <div className="flex flex-row gap-2 items-center mb-3">
+          <div className={`flex flex-row gap-2 items-center ${title && "mb-3"}`}>
             {icon !== undefined && <ToastIcon style={icon} />}
-            <p className="text-sm font-medium text-white">{title}</p>
+            <p className="text-sm font-medium text-white">
+              {title ? title : description}
+            </p>
           </div>
-          <p className="mt-1 text-sm text-white/60">{description}</p>
+          {title && <p className="mt-1 text-sm text-white/60">{description}</p>}
         </div>
       </div>
     </div>
