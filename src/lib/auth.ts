@@ -29,6 +29,11 @@ export const auth = betterAuth({
         defaultValue: [],
         required: true,
       },
+      user_id: {
+        type: "string",
+        defaultValue: null,
+        required: true,
+      },
     },
   },
   socialProviders: {
@@ -67,9 +72,11 @@ export const auth = betterAuth({
         );
 
         console.log("User authenticated:", profile);
+        console.log(profile.id, profile);
         return {
           user: {
             id: profile.id,
+            user_id: profile.id,
             name: profile.global_name || profile.username || "",
             email: profile.email,
             emailVerified: profile.verified,

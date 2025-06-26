@@ -15,6 +15,7 @@ export const frontendSchema = pgSchema("frontend");
 
 export const user = frontendSchema.table("user", {
   id: text("id").primaryKey(),
+  user_id: text("user_id"),
   name: text("name").notNull(),
   email: text("email").notNull().unique(),
   emailVerified: boolean("email_verified").notNull(),

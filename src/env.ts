@@ -24,6 +24,7 @@ export const env = createEnv({
     NEXT_PUBLIC_STRIPE_PUBLIC_KEY: z.string().optional(),
     NEXT_PUBLIC_API_URL: z.string(),
     NEXT_PUBLIC_WS_URL: z.string(),
+    NEXT_PUBLIC_DISCORD_BOT_INVITE_URL: z.string(),
   },
   runtimeEnv: {
     NEXT_PUBLIC_URL: process.env.NEXT_PUBLIC_URL,
@@ -42,5 +43,6 @@ export const env = createEnv({
     NEXT_PUBLIC_API_URL: process.env.NEXT_PUBLIC_API_URL,
     WS_PORT: process.env.WS_PORT,
     NEXT_PUBLIC_WS_URL: process.env.NEXT_PUBLIC_WS_URL,
+    NEXT_PUBLIC_DISCORD_BOT_INVITE_URL: process.env.NEXT_PUBLIC_DISCORD_BOT_INVITE_URL,
   },
 });

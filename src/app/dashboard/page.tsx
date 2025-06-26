@@ -9,10 +9,13 @@ import { toast } from "@/components/Toast";
 import { GuildAvatar } from "@/components/Avatar";
 import { PersonStanding, User } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { Guild } from "discord.js";
+import { env } from "@/env";
 
 export default function DashboardPage() {
   const { guilds } = useAvailableGuildStore();
   const { user, session } = useUserStore();
+
   return (
     <div className="mx-auto px-[2rem] mt-[5rem] items-center justify-center gap-[3rem] flex flex-col">
       <div className="flex flex-col items-center">
@@ -45,9 +48,42 @@ export default function DashboardPage() {
       </div>
 
       <div className="gap-2 flex flex-wrap w-[90vw] items-center justify-center">
-        {guilds?.map((guild, i) => (
+        {(() => {
+          // Combine all guilds
+          const allGuilds = [
+            ...(guilds as Guild[]),
+            ...JSON.parse(user?.guilds as string),
+          ];
+
+          // Create a Map to track guilds by ID, prioritizing those with numeric memberCount
+          const guildMap = new Map();
+
+          allGuilds.forEach((guild) => {
+            const existingGuild = guildMap.get(guild.id);
+
+            if (!existingGuild) {
+              // First time seeing this guild, add it
+              guildMap.set(guild.id, guild);
+            } else {
+              // Guild already exists, keep the one with numeric memberCount
+              const hasNumericMemberCount =
+                typeof guild.memberCount === "number";
+              const existingHasNumericMemberCount =
+                typeof existingGuild.memberCount === "number";
+
+              if (hasNumericMemberCount && !existingHasNumericMemberCount) {
+                // Replace with the one that has numeric memberCount
+                guildMap.set(guild.id, guild);
+              }
+              // If both have numeric or both don't have numeric, keep the existing one
+            }
+          });
+
+          // Convert back to array
+          return Array.from(guildMap.values());
+        })().map((guild, i) => (
           <div
-            key={i}
+            key={guild.id} // Use guild.id instead of index for better React key
             className="lg:w-[22%] md:w-[48%] sm:w-[100%] p-[1rem] border rounded-md col-span-1 bg-dark-foreground border-blimp-border"
           >
             <div className="flex flex-row gap-3 items-center">
@@ -60,15 +96,25 @@ export default function DashboardPage() {
               />
               <div className="flex flex-col gap-1">
                 <h1 className="font-bold text-lg">{guild.name}</h1>
-                <p className="flex flex-row gap-1 opacity-60">
-                  <User className="w-[17px]" />
-                  <span>{guild.memberCount} members</span>
-                </p>
+                {typeof guild.memberCount === "number" && (
+                  <p className="flex flex-row gap-1 opacity-60">
+                    <User className="w-[17px]" />
+                    <span>{guild.memberCount} members</span>
+                  </p>
+                )}
               </div>
             </div>
             <div className="w-full mt-[1.5rem]">
               <Button asChild className="w-full">
-                <a href={`/dashboard/${guild.id}`}>Manage</a>
+                {typeof guild.memberCount === "number" ? (
+                  <a href={`/dashboard/${guild.id}`}>Manage</a>
+                ) : (
+                  <a
+                    href={`${env.NEXT_PUBLIC_DISCORD_BOT_INVITE_URL}&guild_id=${guild.id}&disable_guild_select=true`}
+                  >
+                    Invite to Server
+                  </a>
+                )}
               </Button>
             </div>
           </div>

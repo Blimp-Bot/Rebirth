@@ -29,7 +29,7 @@ export default function DashboardLayout({
   // Use a mutation so that we dont have to fetch on every child route call.
   const { isError, error, mutateAsync } = useMutation({
     mutationKey: ["getGuilds", "dashboard"],
-    mutationFn: (guilds: string[]) =>
+    mutationFn: (guilds: {id: string, name: string}[]) =>
       betterFetch<{
         ok: boolean;
         data: any[];
@@ -37,6 +37,9 @@ export default function DashboardLayout({
         method: "POST",
         body: {
           ids: guilds,
+        },
+        headers: {
+          "bearer-user-id": `${user?.user_id}`,
         },
         onRequest: () => {
           console.log("Sending request to /dash/guilds/in/ with IDs:", guilds);
@@ -49,11 +52,11 @@ export default function DashboardLayout({
         },
       }),
   });
-
   React.useEffect(() => {
     if (sessionData && !session) {
       setSession(sessionData.session as unknown as Session);
       if (sessionData.user && !user) {
+        //@ts-ignore
         setUser(sessionData.user);
         try {
           // Parse guild data from session
@@ -63,7 +66,7 @@ export default function DashboardLayout({
 
           // Extract just the IDs regardless of format
           const guildIds = Array.isArray(guildData)
-            ? guildData.map((g) => (typeof g === "string" ? g : g.id))
+            ? guildData.map((g) => ({id: g.id, name: g.name}))
             : [];
 
           // Only proceed if we have IDs
@@ -72,6 +75,7 @@ export default function DashboardLayout({
               .then((r) => {
                 console.log("API response:", r);
                 if (r.data?.data) {
+                  console.log(r.data.data);
                   setGuilds(r.data.data as unknown as Guild[]);
                 } else {
                   console.error("No guild data in response");
