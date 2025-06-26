@@ -36,6 +36,7 @@ export const auth = betterAuth({
       clientId: env.DISCORD_CLIENT_ID as string,
       // redirectURI: `/dashboard`,
       clientSecret: env.DISCORD_CLIENT_SECRET as string,
+      //@ts-ignore
       getUserInfo: async (token) => {
         const { data: profile, error } = await betterFetch<DiscordProfile>(
           "https://discord.com/api/users/@me",
@@ -73,6 +74,7 @@ export const auth = betterAuth({
             email: profile.email,
             emailVerified: profile.verified,
             image: profile.avatar,
+            banner: profile.banner,
             guilds: JSON.stringify(adminGuilds),
           },
           data: profile,

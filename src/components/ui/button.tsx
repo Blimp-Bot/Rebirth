@@ -9,7 +9,7 @@ const buttonVariants = cva(
   {
     variants: {
       variant: {
-        red: "text-secondary-foreground shadow-xs  bg-default-accent hover:bg-default-accent/50",
+        main: "bg-amber-500 text-white shadow-lg hover:bg-amber-600 focus-visible:ring-amber-400/50 border border-amber-300/50 font-semibold",
         default:
           "bg-primary text-primary-foreground shadow-xs hover:bg-primary/90",
         destructive:
@@ -30,7 +30,7 @@ const buttonVariants = cva(
       },
     },
     defaultVariants: {
-      variant: "default",
+      variant: "main",
       size: "default",
     },
   }

@@ -1,5 +1,5 @@
 import { Guild } from "discord.js";
-import { Card } from "../../ui/card";
+import { Card } from "../ui/card";
 import {
   Blocks,
   ChevronDown,
@@ -21,17 +21,17 @@ import {
   AccordionContent,
   AccordionItem,
   AccordionTrigger,
-} from "../../ui/accordion";
-import { Badge } from "../../ui/badge";
+} from "../ui/accordion";
+import { Badge } from "../ui/badge";
 import { capitlize } from "@/lib/utils";
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuTrigger,
-} from "../../ui/dropdown-menu";
+} from "../ui/dropdown-menu";
 import { useAvailableGuildStore } from "@/lib/stores";
 import { useState } from "react";
-import { Avatar } from "../../Avatar";
+import { Avatar } from "../Avatar";
 
 export const TABS = {
   all: [

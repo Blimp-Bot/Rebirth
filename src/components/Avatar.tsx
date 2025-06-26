@@ -4,7 +4,7 @@ import {
   AvatarFallback,
   AvatarImage,
 } from "@/components/ui/avatar";
-import { formatNameForAvatar } from "@/lib/utils";
+import { cn, formatNameForAvatar } from "@/lib/utils";
 type AvatarProps = {
   name: string;
   iconHash: string | null;
@@ -13,7 +13,7 @@ type AvatarProps = {
   size?: number;
 };
 
-export function Avatar({
+export function GuildAvatar({
   name,
   id,
   iconHash,
@@ -22,7 +22,7 @@ export function Avatar({
 }: AvatarProps) {
   return (
     <ShadAvatar
-      className="bg-default-accent"
+      className={cn(props.className, "bg-default-accent")}
       style={{
         width: `${size}px`,
         height: `${size}px`,

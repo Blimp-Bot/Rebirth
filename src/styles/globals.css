@@ -39,13 +39,21 @@
   --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
   --color-sidebar-border: var(--sidebar-border);
   --color-sidebar-ring: var(--sidebar-ring);
+
+  /* Custom */
   --color-default-accent: #fba000;
+  --color-dark-foreground: 	oklch(0.2441 0.0313 288.72);
+  --color-blimp-active: oklch(0.2041 0.018 288.72);
+  --color-blimp-border: oklch(0.2741 0.025 288.72);
+  --color-blimp-subtle: oklch(0.185 0.015 288.72);
+  --color-blimp-foreground: oklch(0.96 0.005 288.72);
+  --color-blimp-abstract-text: oklch(0.65 0.05 288.72);
 }
 
 :root {
   --radius: 0.5rem;
   --background: oklch(1 0 0);
-  --foreground: oklch(0.141 0.005 285.823);
+  --foreground: oklch(24.521% 0.00755 285.784);
   --card: oklch(1 0 0);
   --card-foreground: oklch(0.141 0.005 285.823);
   --popover: oklch(1 0 0);
@@ -78,8 +86,9 @@
 }
 
 .dark {
-  --background: oklch(0.141 0.005 285.823);
+  --background: oklch(0.2241 0.0213 288.72);
   --foreground: oklch(0.985 0 0);
+
   --card: oklch(0.21 0.006 285.885);
   --card-foreground: oklch(0.985 0 0);
   --popover: oklch(0.21 0.006 285.885);

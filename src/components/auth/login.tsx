@@ -6,12 +6,14 @@ import { useEffect, useState } from "react";
 import { authClient } from "@/lib/auth/client";
 import { toast } from "sonner";
 import { redirect } from "next/navigation";
+import ProdAvatarTransparent from "@/assets/AVATAR_PROD-TRANSPARENT.png";
 import { env } from "@/env";
 import Loader from "../loader";
 import { useSpinDelay } from "spin-delay";
+import Image from "next/image";
 
 export default function LoginComponent() {
-  const [loading, setLoading] = useState(false)
+  const [loading, setLoading] = useState(false);
   const { data, isPending, error } = authClient.useSession();
   useEffect(() => {
     if (data && data.user && data.session) {
@@ -20,10 +22,25 @@ export default function LoginComponent() {
   }, [data]);
 
   const showSpinner = useSpinDelay(isPending, { delay: 500, minDuration: 200 });
-  if(showSpinner) return <Loader/>
+  if (showSpinner) return <Loader />;
   return (
     <div className="flex items-center justify-center w-screen h-screen">
-      <div className="flex max-w-[500px] items-center justify-center">
+      <div className="flex items-start flex-col bg-dark-foreground border p-[1rem] rounded-md border-blimp-border w-[500px]">
+        <div className="flex justify-between items-center w-full">
+          <h1 className="font-bold text-lg">
+            Hey! Thanks for giving Blimp a try.
+          </h1>
+          <Image
+            width={60}
+            src={ProdAvatarTransparent}
+            alt="Transparent variation of Blimp's production logo"
+          />
+        </div>
+        <p className="opacity-60 mt-1 text-sm">
+          We just need a few basic details to get you started—nothing more than
+          what's necessary. You're in control, and your privacy is important to
+          us.
+        </p>
         <Button
           onClick={() => {
             authClient.signIn.social(
@@ -50,12 +67,15 @@ export default function LoginComponent() {
               }
             );
           }}
-          variant={"red"}
-          className="flex gap-3 items-center justify-center cursor-pointer"
+          className="flex w-full gap-3 mt-[2rem] items-center justify-center cursor-pointer"
         >
           <FaDiscord />
           Login With Discord
         </Button>
+        <p className="text-xs opacity-60 mt-2">
+          By continuing, you agree to our <a href="/tos">Terms of Service</a>{" "}
+          and <a href="/privacy-policy">Privacy Policy</a>
+        </p>
       </div>
     </div>
   );

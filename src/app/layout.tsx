@@ -26,7 +26,7 @@ export default function RootLayout({
             disableTransitionOnChange
           >
             <QueryClientProvider client={queryClient}>
-              <Toaster />
+              <Toaster richColors />
               {children}
             </QueryClientProvider>
           </ThemeProvider>

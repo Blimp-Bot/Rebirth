@@ -1,71 +1,119 @@
-// "use client";
+"use client";
 
-// import * as React from "react";
+import ForceHome from "@/components/auth/ForceHome";
+import GuildSidebar from "@/components/dashboard/GuildSidebar";
+import Loader from "@/components/loader";
+import { env } from "@/env";
+import { authClient, Session } from "@/lib/auth/client";
+import { useAvailableGuildStore, useUserStore } from "@/lib/stores";
+import { betterFetch } from "@better-fetch/fetch";
+import { useMutation } from "@tanstack/react-query";
+import { Guild } from "discord.js";
+import React from "react";
+import { toast, Toaster } from "sonner";
+import { useSpinDelay } from "spin-delay";
 
-// import { Toaster } from "@/components/ui/sonner";
-// import { useMutation } from "@tanstack/react-query";
-// import Loader from "@/components/loader";
-// import GuildSidebar from "@/components/previous/dashboard/GuildSidebar";
-// import ForceHome from "@/components/auth/ForceHome";
-// import ErrorView from "@/components/ErrorView";
-// import { env } from "@/env";
-// import { Guild } from "discord.js";
-// import { betterFetch } from "@better-fetch/fetch";
-// import { useParams } from "next/navigation";
-// import { useGuildStore } from "@/lib/stores";
-// import { useSpinDelay } from "spin-delay";
+export default function DashboardLayout({
+  children,
+}: Readonly<{
+  children: React.ReactNode;
+}>) {
+  // Variables for data stores - Reduces amount of api calls required + quicker than api calls.
+  const { user, session, setUser, setSession } = useUserStore();
+  const { guilds, setGuilds } = useAvailableGuildStore();
+  const [loading, setLoading] = React.useState(true);
 
-// export default function GuildLayout({
-//   children,
-// }: Readonly<{
-//   children: React.ReactNode;
-// }>) {
-//   const { id } = useParams<{ id: string }>();
-//   const { setGuild, guild: storedGuild } = useGuildStore();
-//   const [loading, setLoading] = React.useState(true);
+  // Fetch current session - fetched each child route call incase signed out.
+  const { data: sessionData, isPending } = authClient.useSession();
 
-//   const { isError, error, mutateAsync } = useMutation({
-//     mutationKey: ["getGuilds", "dashboard", id],
-//     mutationFn: () =>
-//       betterFetch<{
-//         ok: boolean;
-//         data: Guild;
-//       }>(`${env.NEXT_PUBLIC_API_URL}/dash/guild/${id}`),
-//   });
+  // Use a mutation so that we dont have to fetch on every child route call.
+  const { isError, error, mutateAsync } = useMutation({
+    mutationKey: ["getGuilds", "dashboard"],
+    mutationFn: (guilds: string[]) =>
+      betterFetch<{
+        ok: boolean;
+        data: any[];
+      }>(`${env.NEXT_PUBLIC_API_URL}/dash/guilds/in/`, {
+        method: "POST",
+        body: {
+          ids: guilds,
+        },
+        onRequest: () => {
+          console.log("Sending request to /dash/guilds/in/ with IDs:", guilds);
+        },
+        onError: (error: any) => {
+          console.error("API request failed:", error);
+          toast.error(
+            "Failed to fetch guilds availability, please refresh to try again."
+          );
+        },
+      }),
+  });
 
-//   React.useEffect(() => {
-//     if (!storedGuild) {
-//       mutateAsync()
-//         .then((response) => {
-//           if (response?.data?.data) {
-//             setGuild(response.data.data as Guild);
-//           }
-//         })
-//         .catch((err) => {
-//           console.error("Failed to fetch guild:", err);
-//         })
-//         .finally(() => {
-//           setLoading(false);
-//         });
-//     } else {
-//       setLoading(false);
-//     }
-//   }, [id, storedGuild, mutateAsync, setGuild]);
+  React.useEffect(() => {
+    if (sessionData && !session) {
+      setSession(sessionData.session as unknown as Session);
+      if (sessionData.user && !user) {
+        setUser(sessionData.user);
+        try {
+          // Parse guild data from session
+          //@ts-ignore
+          const guildData = JSON.parse(sessionData.user.guilds);
+          console.log("Parsed guild data:", guildData);
 
-//   const showSpinner = useSpinDelay(loading, { delay: 500, minDuration: 200 });
+          // Extract just the IDs regardless of format
+          const guildIds = Array.isArray(guildData)
+            ? guildData.map((g) => (typeof g === "string" ? g : g.id))
+            : [];
 
-//   if (showSpinner) return <Loader />;
+          // Only proceed if we have IDs
+          if (guildIds.length > 0) {
+            mutateAsync(guildIds)
+              .then((r) => {
+                console.log("API response:", r);
+                if (r.data?.data) {
+                  setGuilds(r.data.data as unknown as Guild[]);
+                } else {
+                  console.error("No guild data in response");
+                }
+              })
+              .catch((error) => {
+                console.error("API call failed:", error);
+              });
+          } else {
+            console.warn("No guild IDs found to send to API");
+            setLoading(false);
+          }
+        } catch (err) {
+          console.error("Error parsing guild data:", err);
+          setLoading(false);
+        }
+      } else {
+        setLoading(false);
+      }
+    } else if (session) {
+      setLoading(false);
+    }
+  }, [sessionData, session, user, setSession, setUser]);
 
-//   if (isError) {
-//     return <ErrorView error={error} />;
-//   }
+  // If failed to find session data, then recreate the object.
+  const effectiveSession =
+    user && session ? { user: user, session: session } : sessionData;
 
-//   if (!storedGuild) return <ForceHome />;
+  // Add spinner delay to prevent a blank page load.
+  const showSpinner = useSpinDelay(loading || isPending, {
+    delay: 500,
+    minDuration: 200,
+  });
 
-//   return (
-//     <>
-//       <Toaster />
-//       <div className="flex w-full">{children}</div>
-//     </>
-//   );
-// }
+  // Error/use case handling
+  if (showSpinner) return <Loader />;
+
+  if (!effectiveSession) return <ForceHome />;
+
+  return (
+    <>
+      <div className="flex w-full">{children}</div>
+    </>
+  );
+}
